@@ -2,6 +2,15 @@
 
 A SwiftUI application that creates an OpenAI-compatible API server using Apple's on-device Foundation Models. This allows you to use Apple Intelligence models locally through familiar OpenAI API endpoints.
 
+## Screenshot
+
+![App Screenshot](assets/server.png)
+
+Use it in any OpenAI compatible app:
+
+![Integration Screenshot](assets/chat-app.png)
+
+
 ## Features
 
 - **OpenAI Compatible API**: Drop-in replacement for OpenAI API with chat completions endpoint
@@ -19,6 +28,10 @@ This project is implemented as a GUI application rather than a command-line tool
 > — Apple DTS Engineer ([Source](https://developer.apple.com/forums/thread/787737))
 
 Command-line tools hit rate limits very quickly (around 150+ requests), while GUI applications can make unlimited requests. This makes the GUI approach essential for any serious usage of Apple's on-device models.
+
+**⚠️ Important Note**: You may still encounter rate limits due to current limitations in Apple FoundationModels. If you experience rate limiting, please restart the server.
+
+**⚠️ 重要提醒**: 由于苹果 FoundationModels 当前的限制，您仍然可能遇到速率限制。如果遇到这种情况，请重启服务器。
 
 ## Requirements
 
@@ -98,6 +111,24 @@ for chunk in response:
     if chunk.choices[0].delta.content:
         print(chunk.choices[0].delta.content, end="")
 ```
+
+## Testing
+
+You can use the included test script to verify the server is working correctly and see example usage patterns:
+
+```bash
+python3 test_server.py
+```
+
+The test script will:
+- ✅ Check server health and connectivity
+- ✅ Verify model availability and status
+- ✅ Test OpenAI SDK compatibility
+- ✅ Run multi-turn conversations
+- ✅ Test multilingual support (Chinese)
+- ✅ Demonstrate streaming functionality
+
+Make sure the server is running before executing the test script. The script provides comprehensive examples of how to interact with the API using both direct HTTP requests and the OpenAI Python SDK.
 
 ## API Compatibility
 
