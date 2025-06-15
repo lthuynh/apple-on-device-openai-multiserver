@@ -37,6 +37,9 @@ class ServerViewModel: ObservableObject {
     @Published var configuration = ServerConfiguration.default
     @Published var hostInput: String = "127.0.0.1"
     @Published var portInput: String = "11535"
+    @Published var isModelAvailable: Bool = false
+    @Published var modelUnavailableReason: String?
+    @Published var isCheckingModel: Bool = false
 
     private let serverManager = VaporServerManager()
 
@@ -66,9 +69,31 @@ class ServerViewModel: ObservableObject {
         // Initialize with current configuration values
         self.hostInput = configuration.host
         self.portInput = String(configuration.port)
+
+        // Check model availability on startup
+        Task {
+            await checkModelAvailability()
+        }
+    }
+
+    func checkModelAvailability() async {
+        isCheckingModel = true
+
+        let result = await aiManager.isModelAvailable()
+
+        isModelAvailable = result.available
+        modelUnavailableReason = result.reason
+        isCheckingModel = false
     }
 
     func startServer() async {
+        // Check model availability before starting
+        await checkModelAvailability()
+
+        guard isModelAvailable else {
+            return
+        }
+
         updateConfiguration()
         await serverManager.startServer(configuration: configuration)
     }
@@ -155,6 +180,60 @@ struct ContentView: View {
                             }
                         }
 
+                        // Model Availability Status
+                        HStack {
+                            Text("Apple Intelligence:")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+
+                            if viewModel.isCheckingModel {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                Text("Checking...")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Circle()
+                                    .fill(viewModel.isModelAvailable ? Color.green : Color.orange)
+                                    .frame(width: 8, height: 8)
+
+                                Text(viewModel.isModelAvailable ? "Available" : "Not Available")
+                                    .font(.subheadline)
+                                    .foregroundColor(viewModel.isModelAvailable ? .green : .orange)
+                            }
+
+                            Spacer()
+
+                            if !viewModel.isModelAvailable && !viewModel.isCheckingModel {
+                                Button("Retry") {
+                                    Task {
+                                        await viewModel.checkModelAvailability()
+                                    }
+                                }
+                                .buttonStyle(.borderless)
+                                .font(.caption)
+                            }
+                        }
+
+                        // Model unavailable reason
+                        if !viewModel.isModelAvailable,
+                            let reason = viewModel.modelUnavailableReason
+                        {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Issue:")
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
+
+                                Text(reason)
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 8)
+                                    .background(Color.orange.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
+                        }
+
                         if let error = viewModel.lastError {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Error:")
@@ -185,7 +264,10 @@ struct ContentView: View {
                                 .disabled(isStopping)
                                 .tint(.red)
                             } else {
-                                Button("Start Server") {
+                                Button(
+                                    viewModel.isModelAvailable
+                                        ? "Start Server" : "Model Not Available"
+                                ) {
                                     Task {
                                         isStarting = true
                                         await viewModel.startServer()
@@ -194,8 +276,11 @@ struct ContentView: View {
                                 }
                                 .buttonStyle(.borderedProminent)
                                 .controlSize(.large)
-                                .disabled(isStarting)
-                                .tint(.green)
+                                .disabled(
+                                    isStarting || !viewModel.isModelAvailable
+                                        || viewModel.isCheckingModel
+                                )
+                                .tint(viewModel.isModelAvailable ? .green : .gray)
                             }
 
                             if isStarting || isStopping {

@@ -7,6 +7,7 @@ A SwiftUI application that creates an OpenAI-compatible API server using Apple's
 - **OpenAI Compatible API**: Drop-in replacement for OpenAI API with chat completions endpoint
 - **Streaming Support**: Real-time streaming responses compatible with OpenAI's streaming format
 - **On-Device Processing**: Uses Apple's Foundation Models for completely local AI processing
+- **Model Availability Check**: Automatically checks Apple Intelligence availability on startup
 - **🚧 Tool Using (WIP)**: Function calling capabilities for extended AI functionality
 
 ## Why a GUI App Instead of Command Line?
