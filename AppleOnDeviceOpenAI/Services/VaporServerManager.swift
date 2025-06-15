@@ -18,6 +18,8 @@ class VaporServerManager: ObservableObject {
     private var app: Application?
     private var serverTask: Task<Void, Never>?
 
+    private static let modelName = "apple-on-device"
+
     func startServer(configuration: ServerConfiguration) async {
         guard !isRunning else { return }
 
@@ -107,7 +109,7 @@ class VaporServerManager: ObservableObject {
             if available {
                 models.append(
                     ModelInfo(
-                        id: "apple-on-device",
+                        id: Self.modelName,
                         object: "model",
                         created: Int(Date().timeIntervalSince1970),
                         ownedBy: "apple-on-device-openai"
@@ -146,7 +148,7 @@ class VaporServerManager: ObservableObject {
                     id: "chatcmpl-\(UUID().uuidString)",
                     object: "chat.completion",
                     created: Int(Date().timeIntervalSince1970),
-                    model: chatRequest.model ?? "apple-on-device",
+                    model: chatRequest.model ?? Self.modelName,
                     choices: [
                         ChatCompletionChoice(
                             index: 0,
@@ -264,7 +266,7 @@ class VaporServerManager: ObservableObject {
                             id: responseId,
                             object: "chat.completion.chunk",
                             created: created,
-                            model: "apple-on-device",
+                            model: Self.modelName,
                             choices: [
                                 ChatCompletionStreamChoice(
                                     index: 0,
@@ -295,7 +297,7 @@ class VaporServerManager: ObservableObject {
                         id: responseId,
                         object: "chat.completion.chunk",
                         created: created,
-                        model: "apple-on-device",
+                        model: Self.modelName,
                         choices: [
                             ChatCompletionStreamChoice(
                                 index: 0,

@@ -21,6 +21,14 @@ struct ServerConfiguration {
     var url: String {
         "http://\(host):\(port)"
     }
+
+    var openaiBaseURL: String {
+        "\(url)/v1"
+    }
+
+    var chatCompletionsEndpoint: String {
+        "\(url)/v1/chat/completions"
+    }
 }
 
 // MARK: - ViewModel
@@ -43,6 +51,16 @@ class ServerViewModel: ObservableObject {
     var serverURL: String {
         configuration.url
     }
+
+    var openaiBaseURL: String {
+        configuration.openaiBaseURL
+    }
+
+    var chatCompletionsEndpoint: String {
+        configuration.chatCompletionsEndpoint
+    }
+
+    let modelName = "apple-on-device"
 
     init() {
         // Initialize with current configuration values
@@ -77,6 +95,13 @@ class ServerViewModel: ObservableObject {
         hostInput = configuration.host
         portInput = String(configuration.port)
     }
+
+    func copyToClipboard(_ text: String) {
+        #if os(macOS)
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(text, forType: .string)
+        #endif
+    }
 }
 
 // MARK: - Main View
@@ -86,177 +111,304 @@ struct ContentView: View {
     @State private var isStopping = false
 
     var body: some View {
-        VStack(spacing: 20) {
-            // Header
-            VStack(spacing: 8) {
-                Image(systemName: "server.rack")
-                    .font(.system(size: 48))
-                    .foregroundStyle(.tint)
+        ScrollView {
+            VStack(spacing: 24) {
+                // Header
+                VStack(spacing: 8) {
+                    Image(systemName: "brain.head.profile")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.tint)
 
-                Text("Vapor Server Manager")
-                    .font(.title)
-                    .fontWeight(.semibold)
+                    Text("Apple On-Device OpenAI API")
+                        .font(.title)
+                        .fontWeight(.semibold)
 
-                Text("Start and stop your local Vapor web server")
+                    Text("Local Apple Intelligence through OpenAI-compatible endpoints")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+
+                // Server Status
+                GroupBox("Server Status") {
+                    VStack(spacing: 16) {
+                        HStack {
+                            Circle()
+                                .fill(viewModel.isRunning ? Color.green : Color.red)
+                                .frame(width: 12, height: 12)
+
+                            Text(viewModel.isRunning ? "Running" : "Stopped")
+                                .font(.headline)
+                                .foregroundColor(viewModel.isRunning ? .green : .red)
+
+                            Spacer()
+
+                            // Model name badge
+                            if viewModel.isRunning {
+                                Text(viewModel.modelName)
+                                    .font(.caption)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.blue.opacity(0.2))
+                                    .foregroundColor(.blue)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
+
+                        if let error = viewModel.lastError {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Error:")
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+
+                                Text(error)
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 8)
+                                    .background(Color.red.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
+                        }
+
+                        HStack {
+                            if viewModel.isRunning {
+                                Button("Stop Server") {
+                                    Task {
+                                        isStopping = true
+                                        await viewModel.stopServer()
+                                        isStopping = false
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .disabled(isStopping)
+                                .tint(.red)
+                            } else {
+                                Button("Start Server") {
+                                    Task {
+                                        isStarting = true
+                                        await viewModel.startServer()
+                                        isStarting = false
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .disabled(isStarting)
+                                .tint(.green)
+                            }
+
+                            if isStarting || isStopping {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            }
+                        }
+                    }
+                }
+
+                // OpenAI API Integration - Only show when running
+                if viewModel.isRunning {
+                    GroupBox("OpenAI API Integration") {
+                        VStack(spacing: 16) {
+                            // Base URL for OpenAI clients
+                            APIEndpointRow(
+                                title: "Base URL",
+                                subtitle: "For OpenAI Python/JavaScript clients",
+                                url: viewModel.openaiBaseURL,
+                                onCopy: { viewModel.copyToClipboard(viewModel.openaiBaseURL) }
+                            )
+
+                            Divider()
+
+                            // Chat Completions Endpoint
+                            APIEndpointRow(
+                                title: "Chat Completions",
+                                subtitle: "Direct API endpoint",
+                                url: viewModel.chatCompletionsEndpoint,
+                                onCopy: {
+                                    viewModel.copyToClipboard(viewModel.chatCompletionsEndpoint)
+                                }
+                            )
+
+                            Divider()
+
+                            // Model Name
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Model Name")
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                    Text("Use this in your API requests")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Spacer()
+
+                                HStack {
+                                    Text(viewModel.modelName)
+                                        .font(.system(.body, design: .monospaced))
+                                        .textSelection(.enabled)
+
+                                    Button("Copy") {
+                                        viewModel.copyToClipboard(viewModel.modelName)
+                                    }
+                                    .buttonStyle(.borderless)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Color.gray.opacity(0.1))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
+                    }
+
+                    // Quick Start Examples
+                    GroupBox("Quick Start") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Python Example:")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+
+                            let pythonCode = """
+                                from openai import OpenAI
+
+                                client = OpenAI(
+                                    base_url="\(viewModel.openaiBaseURL)",
+                                    api_key="not-needed"
+                                )
+
+                                response = client.chat.completions.create(
+                                    model="\(viewModel.modelName)",
+                                    messages=[{"role": "user", "content": "Hello!"}]
+                                )
+                                """
+
+                            CodeBlock(
+                                code: pythonCode,
+                                onCopy: {
+                                    viewModel.copyToClipboard(pythonCode)
+                                })
+                        }
+                    }
+                }
+
+                // Server Configuration
+                GroupBox("Server Configuration") {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Host:")
+                                .frame(width: 60, alignment: .leading)
+                            TextField("127.0.0.1", text: $viewModel.hostInput)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .disabled(viewModel.isRunning)
+                        }
+
+                        HStack {
+                            Text("Port:")
+                                .frame(width: 60, alignment: .leading)
+                            TextField("11535", text: $viewModel.portInput)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .disabled(viewModel.isRunning)
+                        }
+
+                        HStack {
+                            Spacer()
+                            Button("Reset to Defaults") {
+                                viewModel.resetToDefaults()
+                            }
+                            .buttonStyle(.borderless)
+                            .disabled(viewModel.isRunning)
+                        }
+                    }
+                }
+
+                // Available endpoints - More compact version
+                if viewModel.isRunning {
+                    GroupBox("All Available Endpoints") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            EndpointRow(method: "GET", path: "/health", description: "Health check")
+                            EndpointRow(method: "GET", path: "/status", description: "Model status")
+                            EndpointRow(
+                                method: "GET", path: "/v1/models", description: "List models")
+                            EndpointRow(
+                                method: "POST", path: "/v1/chat/completions",
+                                description: "Chat completions")
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+        .frame(maxWidth: 600)
+    }
+}
+
+// MARK: - Helper Views
+struct APIEndpointRow: View {
+    let title: String
+    let subtitle: String
+    let url: String
+    let onCopy: () -> Void
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
                     .font(.subheadline)
+                    .fontWeight(.medium)
+                Text(subtitle)
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
 
             Spacer()
 
-            // Server Status
-            GroupBox("Server Status") {
-                VStack(spacing: 16) {
-                    HStack {
-                        Circle()
-                            .fill(viewModel.isRunning ? Color.green : Color.red)
-                            .frame(width: 12, height: 12)
+            HStack {
+                Text(url)
+                    .font(.system(.body, design: .monospaced))
+                    .textSelection(.enabled)
+                    .lineLimit(1)
 
-                        Text(viewModel.isRunning ? "Running" : "Stopped")
-                            .font(.headline)
-                            .foregroundColor(viewModel.isRunning ? .green : .red)
-
-                        Spacer()
-                    }
-
-                    if viewModel.isRunning {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Server URL:")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-
-                            HStack {
-                                Text(viewModel.serverURL)
-                                    .font(.system(.body, design: .monospaced))
-                                    .textSelection(.enabled)
-
-                                Spacer()
-
-                                Button("Copy") {
-                                    #if os(macOS)
-                                        NSPasteboard.general.clearContents()
-                                        NSPasteboard.general.setString(
-                                            viewModel.serverURL, forType: .string)
-                                    #endif
-                                }
-                                .buttonStyle(.borderless)
-                            }
-                        }
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 8)
-                        .background(Color.gray.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                    }
-
-                    if let error = viewModel.lastError {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Error:")
-                                .font(.caption)
-                                .foregroundColor(.red)
-
-                            Text(error)
-                                .font(.caption)
-                                .foregroundColor(.red)
-                                .padding(.vertical, 4)
-                                .padding(.horizontal, 8)
-                                .background(Color.red.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }
-                    }
-
-                    HStack {
-                        if viewModel.isRunning {
-                            Button("Stop Server") {
-                                Task {
-                                    isStopping = true
-                                    await viewModel.stopServer()
-                                    isStopping = false
-                                }
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.large)
-                            .disabled(isStopping)
-                            .tint(.red)
-                        } else {
-                            Button("Start Server") {
-                                Task {
-                                    isStarting = true
-                                    await viewModel.startServer()
-                                    isStarting = false
-                                }
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.large)
-                            .disabled(isStarting)
-                            .tint(.green)
-                        }
-
-                        if isStarting || isStopping {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                        }
-                    }
+                Button("Copy") {
+                    onCopy()
                 }
+                .buttonStyle(.borderless)
             }
-
-            // Server Configuration
-            GroupBox("Server Configuration") {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("Host:")
-                            .frame(width: 60, alignment: .leading)
-                        TextField("127.0.0.1", text: $viewModel.hostInput)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .disabled(viewModel.isRunning)
-                    }
-
-                    HStack {
-                        Text("Port:")
-                            .frame(width: 60, alignment: .leading)
-                        TextField("11535", text: $viewModel.portInput)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .disabled(viewModel.isRunning)
-                    }
-
-                    HStack {
-                        Spacer()
-                        Button("Reset to Defaults") {
-                            viewModel.resetToDefaults()
-                        }
-                        .buttonStyle(.borderless)
-                        .disabled(viewModel.isRunning)
-                    }
-                }
-            }
-
-            Spacer()
-
-            // Available endpoints
-            if viewModel.isRunning {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Available Endpoints:")
-                        .font(.headline)
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        EndpointRow(method: "GET", path: "/health", description: "Health check")
-                        EndpointRow(method: "GET", path: "/status", description: "Model status")
-                        EndpointRow(method: "GET", path: "/v1/models", description: "List models")
-                        EndpointRow(
-                            method: "POST", path: "/v1/chat/completions",
-                            description: "Chat completions")
-                    }
-                }
-                .padding()
-                .background(Color.blue.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.gray.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .padding()
-        .frame(maxWidth: 500)
     }
 }
 
-// MARK: - Helper Views
+struct CodeBlock: View {
+    let code: String
+    let onCopy: () -> Void
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 8) {
+            HStack {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    Text(code)
+                        .font(.system(.caption, design: .monospaced))
+                        .textSelection(.enabled)
+                        .padding()
+                }
+                .background(Color.gray.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Button("Copy Code") {
+                onCopy()
+            }
+            .buttonStyle(.borderless)
+            .font(.caption)
+        }
+    }
+}
+
 struct EndpointRow: View {
     let method: String
     let path: String
