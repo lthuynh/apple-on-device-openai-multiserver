@@ -239,8 +239,11 @@ struct ContentView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         EndpointRow(method: "GET", path: "/health", description: "Health check")
-                        EndpointRow(method: "GET", path: "/hello", description: "Hello world")
-                        EndpointRow(method: "POST", path: "/echo", description: "Echo request body")
+                        EndpointRow(method: "GET", path: "/status", description: "Model status")
+                        EndpointRow(method: "GET", path: "/v1/models", description: "List models")
+                        EndpointRow(
+                            method: "POST", path: "/v1/chat/completions",
+                            description: "Chat completions")
                     }
                 }
                 .padding()
