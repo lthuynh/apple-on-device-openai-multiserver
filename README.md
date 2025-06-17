@@ -4,11 +4,11 @@ A SwiftUI application that creates an OpenAI-compatible API server using Apple's
 
 ## Screenshot
 
-![App Screenshot](assets/server.png)
+<img src="assets/server.png" alt="App Screenshot" width="600">
 
 Use it in any OpenAI compatible app:
 
-![Integration Screenshot](assets/chat-app.png)
+<img src="assets/chat-app.png" alt="Integration Screenshot" width="600">
 
 
 ## Features
@@ -19,27 +19,21 @@ Use it in any OpenAI compatible app:
 - **Model Availability Check**: Automatically checks Apple Intelligence availability on startup
 - **🚧 Tool Using (WIP)**: Function calling capabilities for extended AI functionality
 
-## Why a GUI App Instead of Command Line?
-
-This project is implemented as a GUI application rather than a command-line tool due to **Apple's rate limiting policies** for Foundation Models:
-
-> "An app that has UI and runs in the foreground doesn't have a rate limit when using the models; a macOS command line tool, which doesn't have UI, does."
-> 
-> — Apple DTS Engineer ([Source](https://developer.apple.com/forums/thread/787737))
-
-Command-line tools hit rate limits very quickly (around 150+ requests), while GUI applications can make unlimited requests. This makes the GUI approach essential for any serious usage of Apple's on-device models.
-
-**⚠️ Important Note**: You may still encounter rate limits due to current limitations in Apple FoundationModels. If you experience rate limiting, please restart the server.
-
-**⚠️ 重要提醒**: 由于苹果 FoundationModels 当前的限制，您仍然可能遇到速率限制。如果遇到这种情况，请重启服务器。
-
 ## Requirements
 
-- **macOS**: 26.0+ (macOS 26 beta required)
+- **macOS**: 26 beta
 - **Apple Intelligence**: Must be enabled in Settings > Apple Intelligence & Siri
-- **Xcode**: 26.0+ (for building)
+- **Xcode**: 26 beta (for building)
 
 ## Installation
+
+### Option 1: Download Pre-built App (Recommended)
+
+1. Go to the [Releases](https://github.com/gety-ai/apple-on-device-openai/releases) page
+2. Download the latest `.zip` file
+3. Extract and launch the app
+
+### Option 2: Build from Source
 
 1. Clone the repository:
 ```bash
@@ -53,6 +47,19 @@ open AppleOnDeviceOpenAI.xcodeproj
 ```
 
 3. Build and run the project in Xcode
+
+## Why a GUI App Instead of Command Line?
+
+This project is implemented as a GUI application rather than a command-line tool due to **Apple's rate limiting policies** for Foundation Models:
+
+> "An app that has UI and runs in the foreground doesn't have a rate limit when using the models; a macOS command line tool, which doesn't have UI, does."
+> 
+> — Apple DTS Engineer ([Source](https://developer.apple.com/forums/thread/787737))
+
+**⚠️ Important Note**: You may still encounter rate limits due to current limitations in Apple FoundationModels. If you experience rate limiting, please restart the server.
+
+**⚠️ 重要提醒**: 由于苹果 FoundationModels 当前的限制，您仍然可能遇到速率限制。如果遇到这种情况，请重启服务器。
+
 
 ## Usage
 
