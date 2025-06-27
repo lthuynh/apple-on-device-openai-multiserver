@@ -21,9 +21,9 @@ Use it in any OpenAI compatible app:
 
 ## Requirements
 
-- **macOS**: 26 beta
+- **macOS**: 26 beta 2
 - **Apple Intelligence**: Must be enabled in Settings > Apple Intelligence & Siri
-- **Xcode**: 26 beta (for building)
+- **Xcode**: 26 beta 2 (for building)
 
 ## Installation
 
