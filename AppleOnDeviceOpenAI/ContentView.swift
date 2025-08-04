@@ -6,6 +6,77 @@
 import SwiftUI
 import Combine
 
+// MARK: - ServerViewModel
+@MainActor
+class ServerViewModel: ObservableObject {
+    @Published var configuration: ServerConfiguration
+    @Published var hostInput: String
+    @Published var portInput: String
+    @Published var isModelAvailable: Bool = false
+    @Published var modelUnavailableReason: String?
+    @Published var isCheckingModel: Bool = false
+
+    private let serverManager = VaporServerManager()
+    var isRunning: Bool { serverManager.isRunning }
+    var lastError: String? { serverManager.lastError }
+    var serverURL: String { configuration.url }
+    var openaiBaseURL: String { configuration.openaiBaseURL }
+    var chatCompletionsEndpoint: String { configuration.chatCompletionsEndpoint }
+    var modelName: String { configuration.mode.displayName }
+
+    init(configuration: ServerConfiguration) {
+        self.configuration = configuration
+        self.hostInput = configuration.host
+        self.portInput = String(configuration.port)
+        Task { await checkModelAvailability() }
+    }
+
+    func checkModelAvailability() async {
+        isCheckingModel = true
+        let result = await aiManager.isModelAvailable()
+        isModelAvailable = result.available
+        modelUnavailableReason = result.reason
+        isCheckingModel = false
+    }
+
+    func startServer() async {
+        await checkModelAvailability()
+        guard isModelAvailable else { return }
+        updateConfiguration()
+        await serverManager.startServer(configuration: configuration)
+    }
+
+    func stopServer() async {
+        await serverManager.stopServer()
+    }
+
+    private func updateConfiguration() {
+        let trimmedHost = hostInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedHost.isEmpty { configuration.host = trimmedHost }
+        if let port = Int(portInput.trimmingCharacters(in: .whitespacesAndNewlines)),
+           port > 0 && port <= 65535 {
+            configuration.port = port
+        }
+    }
+
+    func resetToDefaults() {
+        configuration = ServerConfiguration(
+            host: configuration.mode == .base ? "127.0.0.1" : configuration.host,
+            port: configuration.mode.defaultPort,
+            mode: configuration.mode
+        )
+        hostInput = configuration.host
+        portInput = String(configuration.port)
+    }
+
+    func copyToClipboard(_ text: String) {
+        #if os(macOS)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+        #endif
+    }
+}
+
 // MARK: - MultiServer ViewModel
 @MainActor
 class MultiServerViewModel: ObservableObject {
@@ -48,26 +119,27 @@ struct ContentView: View {
 
                 // One panel per endpoint
                 ForEach(ServerMode.allCases, id: \.self) { mode in
-                    let viewModel = multiServerVM.serverViewModels[mode]!
-                    ServerPanel(
-                        viewModel: viewModel,
-                        isStarting: isStarting[mode] ?? false,
-                        isStopping: isStopping[mode] ?? false,
-                        onStart: {
-                            isStarting[mode] = true
-                            Task {
-                                await viewModel.startServer()
-                                isStarting[mode] = false
+                    if let viewModel = multiServerVM.serverViewModels[mode] {
+                        ServerPanel(
+                            viewModel: viewModel,
+                            isStarting: isStarting[mode] ?? false,
+                            isStopping: isStopping[mode] ?? false,
+                            onStart: {
+                                isStarting[mode] = true
+                                Task {
+                                    await viewModel.startServer()
+                                    isStarting[mode] = false
+                                }
+                            },
+                            onStop: {
+                                isStopping[mode] = true
+                                Task {
+                                    await viewModel.stopServer()
+                                    isStopping[mode] = false
+                                }
                             }
-                        },
-                        onStop: {
-                            isStopping[mode] = true
-                            Task {
-                                await viewModel.stopServer()
-                                isStopping[mode] = false
-                            }
-                        }
-                    )
+                        )
+                    }
                 }
             }
             .padding()

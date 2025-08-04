@@ -7,6 +7,7 @@ import Combine
 import Foundation
 import FoundationModels
 import Vapor
+import AsyncHTTPClient
 
 enum ServerMode: String, CaseIterable, Identifiable {
     case base, deterministic, creative
@@ -55,22 +56,19 @@ class VaporServerManager: ObservableObject {
         guard !isRunning else { return }
 
         do {
-            // Set mode
             self.mode = configuration.mode
 
-            // Create Vapor application
             var env = try Environment.detect()
-
             if !Self.loggingBootstrapped {
                 try LoggingSystem.bootstrap(from: &env)
                 Self.loggingBootstrapped = true
             }
 
-            let app = Application(env)
+            // Vapor 5/Swift 6: use Application.make instead of Application(env)
+            let app = try await Application.make(env, .singleton)
             self.app = app
             app.environment.arguments = [app.environment.arguments[0]]
 
-            // Configure routes
             configureRoutes(app, mode: mode)
 
             app.http.server.configuration.hostname = configuration.host
@@ -136,13 +134,12 @@ class VaporServerManager: ObservableObject {
             return ModelsResponse(object: "list", data: models)
         }
 
-        v1.post("chat", "completions") { req async throws -> Response in
+        v1.post("chat", "completions") { [self] req async throws -> Response in
             let chatRequest = try req.content.decode(ChatCompletionRequest.self)
             guard !chatRequest.messages.isEmpty else {
                 throw Abort(.badRequest, reason: "No messages provided")
             }
 
-            // Extract parameters
             let temp = chatRequest.temperature ?? 0.7
             let topP = chatRequest.topP ?? 0.95
 
@@ -160,58 +157,48 @@ class VaporServerManager: ObservableObject {
                     choices: [
                         ChatCompletionChoice(
                             index: 0,
-                            message: ChatMessage(
-                                role: "assistant",
-                                content: response
-                            ),
+                            message: ChatMessage(role: "assistant", content: response, name: nil),
+                            delta: nil,
                             finishReason: "stop"
                         )
                     ]
                 )
                 let jsonData = try JSONEncoder().encode(chatResponse)
-                var res = Response()
+              let res = Response()
                 res.headers.contentType = .json
                 res.body = .init(data: jsonData)
                 return res
             }
 
-            // Intelligent Routing
             switch mode {
             case .base:
                 if temp < 0.2 || topP < 0.2 {
-                    // Route to deterministic endpoint (proxy)
-                    return try await proxyRequest(toPort: ServerMode.deterministic.defaultPort, with: chatRequest)
+                    return try await self.proxyRequest(toPort: ServerMode.deterministic.defaultPort, with: chatRequest)
                 } else if temp >= 0.8 || topP >= 0.8 {
-                    // Route to creative endpoint (proxy)
-                    return try await proxyRequest(toPort: ServerMode.creative.defaultPort, with: chatRequest)
+                    return try await self.proxyRequest(toPort: ServerMode.creative.defaultPort, with: chatRequest)
                 } else {
-                    // Use user params
                     return try await fixedCall(temp, topP, modelName: mode.displayName)
                 }
-
             case .deterministic:
-                // Ignore user params, enforce deterministic
                 return try await fixedCall(0.1, 0.0, modelName: mode.displayName)
-
             case .creative:
-                // Ignore user params, enforce creative
                 return try await fixedCall(0.9, 0.9, modelName: mode.displayName)
             }
         }
     }
 
-    // Proxy helper
+    // Proxy helper (using async Vapor HTTPClient)
     private func proxyRequest(toPort port: Int, with chatRequest: ChatCompletionRequest) async throws -> Response {
-        let client = HTTPClient(eventLoopGroupProvider: .createNew)
-        defer { try? client.syncShutdown() }
+        let client = HTTPClient(eventLoopGroupProvider: .singleton)
+        defer { Task { try? await client.shutdown() } }
         let url = "http://127.0.0.1:\(port)/v1/chat/completions"
         var request = try HTTPClient.Request(url: url, method: .POST)
         let jsonData = try JSONEncoder().encode(chatRequest)
         request.body = .data(jsonData)
-        let result = try await client.execute(request: request)
+        let result = try await client.execute(request: request).get()
         let buffer = result.body ?? ByteBuffer()
-        var vaporResponse = Response(status: HTTPResponseStatus(statusCode: result.status.code))
-        vaporResponse.body = .init(buffer: buffer)
+        var vaporResponse = Response(status: HTTPResponseStatus(statusCode: Int(result.status.code)))
+        vaporResponse.body = Response.Body(buffer: buffer)
         for (key, value) in result.headers {
             vaporResponse.headers.replaceOrAdd(name: key, value: value)
         }

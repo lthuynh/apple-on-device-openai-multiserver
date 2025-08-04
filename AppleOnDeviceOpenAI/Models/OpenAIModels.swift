@@ -7,18 +7,7 @@ import Foundation
 import FoundationModels
 import Vapor
 
-// MARK: - Data Models
-
-// Define a simple structure for the AI response using @Generable
-@Generable
-nonisolated struct AIResponse: Sendable {
-    let answer: String
-    let confidence: String
-}
-
-// MARK: - Request Models
-
-nonisolated struct ChatCompletionRequest: Content, Sendable {
+struct ChatCompletionRequest: Content, Codable {
     let model: String?
     let messages: [ChatMessage]
     let maxTokens: Int?
@@ -48,11 +37,10 @@ nonisolated struct ChatCompletionRequest: Content, Sendable {
     }
 }
 
-nonisolated struct ChatMessage: Content, Sendable {
+struct ChatMessage: Content, Codable {
     let role: String
     let content: String
     let name: String?
-
     init(role: String, content: String, name: String? = nil) {
         self.role = role
         self.content = content
@@ -60,25 +48,15 @@ nonisolated struct ChatMessage: Content, Sendable {
     }
 }
 
-// MARK: - Response Models
-
-nonisolated struct ChatCompletionResponse: Content, Sendable {
+struct ChatCompletionResponse: Content, Codable {
     let id: String
     let object: String
     let created: Int
     let model: String
     let choices: [ChatCompletionChoice]
-
-    init(id: String, object: String, created: Int, model: String, choices: [ChatCompletionChoice]) {
-        self.id = id
-        self.object = object
-        self.created = created
-        self.model = model
-        self.choices = choices
-    }
 }
 
-nonisolated struct ChatCompletionChoice: Content, Sendable {
+struct ChatCompletionChoice: Content, Codable {
     let index: Int
     let message: ChatMessage?
     let delta: ChatMessage?
@@ -90,26 +68,14 @@ nonisolated struct ChatCompletionChoice: Content, Sendable {
         case delta
         case finishReason = "finish_reason"
     }
-
-    init(
-        index: Int, message: ChatMessage? = nil, delta: ChatMessage? = nil,
-        finishReason: String? = nil
-    ) {
-        self.index = index
-        self.message = message
-        self.delta = delta
-        self.finishReason = finishReason
-    }
 }
 
-// MARK: - Models List Response
-
-nonisolated struct ModelsResponse: Content, Sendable {
+struct ModelsResponse: Content, Codable {
     let object: String
     let data: [ModelInfo]
 }
 
-nonisolated struct ModelInfo: Content, Sendable {
+struct ModelInfo: Content, Codable {
     let id: String
     let object: String
     let created: Int
@@ -123,9 +89,7 @@ nonisolated struct ModelInfo: Content, Sendable {
     }
 }
 
-// MARK: - Server Status Response
-
-nonisolated struct ServerStatus: Content, Sendable {
+struct ServerStatus: Content, Codable {
     let modelAvailable: Bool
     let reason: String
     let supportedLanguages: [String]
@@ -141,41 +105,26 @@ nonisolated struct ServerStatus: Content, Sendable {
     }
 }
 
-// MARK: - Error Response
-
-nonisolated struct ErrorResponse: Content, Sendable {
+struct ErrorResponse: Content, Codable {
     let error: ErrorDetail
 }
 
-nonisolated struct ErrorDetail: Content, Sendable {
+struct ErrorDetail: Content, Codable {
     let message: String
     let type: String
     let param: String?
     let code: String?
 }
 
-// MARK: - Streaming Response Models
-
-nonisolated struct ChatCompletionStreamResponse: Content, Sendable {
+struct ChatCompletionStreamResponse: Content, Codable {
     let id: String
     let object: String
     let created: Int
     let model: String
     let choices: [ChatCompletionStreamChoice]
-
-    init(
-        id: String, object: String, created: Int, model: String,
-        choices: [ChatCompletionStreamChoice]
-    ) {
-        self.id = id
-        self.object = object
-        self.created = created
-        self.model = model
-        self.choices = choices
-    }
 }
 
-nonisolated struct ChatCompletionStreamChoice: Content, Sendable {
+struct ChatCompletionStreamChoice: Content, Codable {
     let index: Int
     let delta: ChatCompletionDelta
     let finishReason: String?
@@ -185,20 +134,9 @@ nonisolated struct ChatCompletionStreamChoice: Content, Sendable {
         case delta
         case finishReason = "finish_reason"
     }
-
-    init(index: Int, delta: ChatCompletionDelta, finishReason: String? = nil) {
-        self.index = index
-        self.delta = delta
-        self.finishReason = finishReason
-    }
 }
 
-nonisolated struct ChatCompletionDelta: Content, Sendable {
+struct ChatCompletionDelta: Content, Codable {
     let role: String?
     let content: String?
-
-    init(role: String? = nil, content: String? = nil) {
-        self.role = role
-        self.content = content
-    }
 }

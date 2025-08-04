@@ -170,7 +170,7 @@ actor OnDeviceModelManager {
     func generateResponse(for prompt: String, temperature: Double? = nil, maxTokens: Int? = nil)
         async throws -> String
     {
-        let messages = [ChatMessage(role: "user", content: prompt)]
+      let messages = await [ChatMessage(role: "user", content: prompt)]
         return try await generateResponse(
             for: messages, temperature: temperature, maxTokens: maxTokens)
     }
