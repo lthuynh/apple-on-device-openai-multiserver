@@ -197,7 +197,7 @@ class VaporServerManager: ObservableObject {
         request.body = .data(jsonData)
         let result = try await client.execute(request: request).get()
         let buffer = result.body ?? ByteBuffer()
-        var vaporResponse = Response(status: HTTPResponseStatus(statusCode: Int(result.status.code)))
+        let vaporResponse = Response(status: HTTPResponseStatus(statusCode: Int(result.status.code)))
         vaporResponse.body = Response.Body(buffer: buffer)
         for (key, value) in result.headers {
             vaporResponse.headers.replaceOrAdd(name: key, value: value)
