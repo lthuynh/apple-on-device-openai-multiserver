@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D761F1842DFF066000898C34 /* AppleOnDeviceOpenAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppleOnDeviceOpenAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D761F1842DFF066000898C34 /* AppleOnDeviceOpenAI-MultiServer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AppleOnDeviceOpenAI-MultiServer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -40,12 +40,13 @@
 				D761F1862DFF066000898C34 /* AppleOnDeviceOpenAI */,
 				D761F1852DFF066000898C34 /* Products */,
 			);
+			indentWidth = 2;
 			sourceTree = "<group>";
 		};
 		D761F1852DFF066000898C34 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D761F1842DFF066000898C34 /* AppleOnDeviceOpenAI.app */,
+				D761F1842DFF066000898C34 /* AppleOnDeviceOpenAI-MultiServer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,9 +54,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D761F1832DFF066000898C34 /* AppleOnDeviceOpenAI */ = {
+		D761F1832DFF066000898C34 /* AppleOnDeviceOpenAI-MultiServer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D761F18F2DFF066100898C34 /* Build configuration list for PBXNativeTarget "AppleOnDeviceOpenAI" */;
+			buildConfigurationList = D761F18F2DFF066100898C34 /* Build configuration list for PBXNativeTarget "AppleOnDeviceOpenAI-MultiServer" */;
 			buildPhases = (
 				D761F1802DFF066000898C34 /* Sources */,
 				D761F1812DFF066000898C34 /* Frameworks */,
@@ -68,12 +69,12 @@
 			fileSystemSynchronizedGroups = (
 				D761F1862DFF066000898C34 /* AppleOnDeviceOpenAI */,
 			);
-			name = AppleOnDeviceOpenAI;
+			name = "AppleOnDeviceOpenAI-MultiServer";
 			packageProductDependencies = (
 				D761F1932DFF09CE00898C34 /* Vapor */,
 			);
 			productName = AppleOnDeviceOpenAI;
-			productReference = D761F1842DFF066000898C34 /* AppleOnDeviceOpenAI.app */;
+			productReference = D761F1842DFF066000898C34 /* AppleOnDeviceOpenAI-MultiServer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -91,7 +92,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D761F17F2DFF066000898C34 /* Build configuration list for PBXProject "AppleOnDeviceOpenAI" */;
+			buildConfigurationList = D761F17F2DFF066000898C34 /* Build configuration list for PBXProject "AppleOnDeviceOpenAI-MultiServer" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -108,7 +109,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D761F1832DFF066000898C34 /* AppleOnDeviceOpenAI */,
+				D761F1832DFF066000898C34 /* AppleOnDeviceOpenAI-MultiServer */,
 			);
 		};
 /* End PBXProject section */
@@ -261,8 +262,8 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = 75B89377QR;
+				CURRENT_PROJECT_VERSION = 0;
+				DEVELOPMENT_TEAM = RK79KL97F9;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
@@ -294,11 +295,17 @@
 				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
 				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
 				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
+				SDKROOT = macosx26.0;
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
+				TVOS_DEPLOYMENT_TARGET = 26.0;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
@@ -311,8 +318,8 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = 75B89377QR;
+				CURRENT_PROJECT_VERSION = 0;
+				DEVELOPMENT_TEAM = RK79KL97F9;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
@@ -344,18 +351,24 @@
 				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
 				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
 				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
+				SDKROOT = macosx26.0;
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
+				TVOS_DEPLOYMENT_TARGET = 26.0;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D761F17F2DFF066000898C34 /* Build configuration list for PBXProject "AppleOnDeviceOpenAI" */ = {
+		D761F17F2DFF066000898C34 /* Build configuration list for PBXProject "AppleOnDeviceOpenAI-MultiServer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D761F18D2DFF066100898C34 /* Debug */,
@@ -364,7 +377,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D761F18F2DFF066100898C34 /* Build configuration list for PBXNativeTarget "AppleOnDeviceOpenAI" */ = {
+		D761F18F2DFF066100898C34 /* Build configuration list for PBXNativeTarget "AppleOnDeviceOpenAI-MultiServer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D761F1902DFF066100898C34 /* Debug */,
