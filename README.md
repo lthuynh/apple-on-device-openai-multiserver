@@ -2,11 +2,29 @@
 
 A SwiftUI application that creates an OpenAI-compatible API server using Apple's on-device Foundation Models. This allows you to use Apple Intelligence models locally through familiar OpenAI API endpoints.
 
-## Screenshot
+## Screenshot - Updated UI Enhanced for MultiServer:
 
-<img src="assets/server.png" alt="App Screenshot" width="600">
+<img src="assets/server.png" alt="UI Enhanced for MultiServer" width="600">
 
-Use it in any OpenAI compatible app:
+
+## Screenshot - All Three MultiServer Services Started:
+
+<img src="assets/server-started.png" alt="All MultiServer Services Started" width="600">
+
+
+## Screenshot - Using Terminal and "netstat" to Verify Services:
+
+<img src="assets/terminal-netstat.png" alt="Using netstat to Verify Services" width="600">
+
+
+## Screenshot - Using Terminal and "lsof" to Verify Services:
+
+<img src="assets/terminal-lsof.png" alt="Using lsof to Verify Services" width="600">
+
+
+
+
+## Screenshot - Use it in any OpenAI compatible app:
 
 <img src="assets/chat-app.png" alt="Integration Screenshot" width="600">
 
