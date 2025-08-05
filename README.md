@@ -14,7 +14,7 @@ A SwiftUI application that creates an OpenAI-compatible API server using Apple's
 
 ## Screenshot - Using Terminal and "netstat" to Verify Services:
 
-<img src="assets/terminal-netstat.png" alt="Using netstat to Verify Services" width="600">
+<img src="assets/terminal-netstat.png" alt="Using netstat to Verify Services" height="90">
 
 
 ## Screenshot - Using Terminal and "lsof" to Verify Services:
