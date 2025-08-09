@@ -114,7 +114,7 @@ class VaporServerManager: ObservableObject {
                 modelAvailable: available,
                 reason: reason ?? "Model is available",
                 supportedLanguages: supportedLanguages,
-                serverVersion: "1.0.0",
+                serverVersion: "1.0.2",
                 appleIntelligenceCompatible: true
             )
         }
@@ -141,7 +141,7 @@ class VaporServerManager: ObservableObject {
             }
 
             let temp = chatRequest.temperature ?? 0.7
-            let topP = chatRequest.topP ?? 0.95
+            let topP = chatRequest.topP ?? 0.8
 
             func fixedCall(_ temp: Double, _ topP: Double, modelName: String) async throws -> Response {
                 let response = try await aiManager.generateResponse(
@@ -172,9 +172,9 @@ class VaporServerManager: ObservableObject {
 
             switch mode {
             case .base:
-                if temp < 0.2 || topP < 0.2 {
+                if temp < 0.1 || topP < 0.3 {
                     return try await self.proxyRequest(toPort: ServerMode.deterministic.defaultPort, with: chatRequest)
-                } else if temp >= 0.8 || topP >= 0.8 {
+                } else if temp >= 1.2 || topP >= 0.9 {
                     return try await self.proxyRequest(toPort: ServerMode.creative.defaultPort, with: chatRequest)
                 } else {
                     return try await fixedCall(temp, topP, modelName: mode.displayName)
