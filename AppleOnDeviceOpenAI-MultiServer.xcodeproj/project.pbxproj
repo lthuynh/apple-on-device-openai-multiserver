@@ -14,9 +14,26 @@
 		D761F1842DFF066000898C34 /* AppleOnDeviceOpenAI-MultiServer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AppleOnDeviceOpenAI-MultiServer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F67FABF92E47D1ED007A7E96 /* Exceptions for "AppleOnDeviceOpenAI" folder in "AppleOnDeviceOpenAI-MultiServer" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			platformFiltersByRelativePath = {
+				AppleOnDeviceOpenAIApp.swift = (macos, );
+				ContentView.swift = (macos, );
+				Models/OpenAIModels.swift = (macos, );
+				Services/OnDeviceModelManager.swift = (macos, );
+				Services/VaporServerManager.swift = (macos, );
+			};
+			target = D761F1832DFF066000898C34 /* AppleOnDeviceOpenAI-MultiServer */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D761F1862DFF066000898C34 /* AppleOnDeviceOpenAI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F67FABF92E47D1ED007A7E96 /* Exceptions for "AppleOnDeviceOpenAI" folder in "AppleOnDeviceOpenAI-MultiServer" target */,
+			);
 			path = AppleOnDeviceOpenAI;
 			sourceTree = "<group>";
 		};
@@ -292,7 +309,7 @@
 				LLVM_LTO = YES_THIN;
 				MARKETING_VERSION = 1.0;
 				OTHER_CFLAGS = "-mtune=native";
-				PRODUCT_BUNDLE_IDENTIFIER = com.littlecarved.AppleOnDeviceOpenAI;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vinhDeIntegro.AppleOnDeviceOpenAI-MultiServer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
@@ -355,7 +372,7 @@
 				LLVM_LTO = YES_THIN;
 				MARKETING_VERSION = 1.0;
 				OTHER_CFLAGS = "-mtune=native";
-				PRODUCT_BUNDLE_IDENTIFIER = com.littlecarved.AppleOnDeviceOpenAI;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vinhDeIntegro.AppleOnDeviceOpenAI-MultiServer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
