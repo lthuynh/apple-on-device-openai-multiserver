@@ -59,6 +59,7 @@ logs/
 
 # Archives
 *.tar.gz
+*.tar.xz
 *.zip
 *.rar
 
@@ -75,4 +76,5 @@ logs/
 *.trace
 
 # Instruments
-*.trace 
+*.trace
+*.profdata
